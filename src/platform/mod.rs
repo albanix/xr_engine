@@ -35,13 +35,15 @@ impl Platform {
     }
 
     pub fn sdl_poll(&self, win: &Window) {
-        'main_loop: while let Some((event, _timestamp)) = self.sdl.poll_events() {
-            match event {
-                Event::Quit => break 'main_loop,
-                _ => {} 
+        'main_loop: loop {
+            while let Some((event, _timstamp)) = self.sdl.poll_events() {
+                match event {
+                    Event::Quit => break 'main_loop,
+                    _ => {}
+                }
             }
         }
-
+        
         unsafe {
             glClear(GL_COLOR_BUFFER_BIT);
         }
