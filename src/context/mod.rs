@@ -1,18 +1,16 @@
 use beryllium::{Sdl, error::SdlError, events::Event, init::InitFlags, video::{CreateWinArgs, GlWindow}};
+use ogl33::load_gl_with;
 
-pub trait EventHandler {
-    fn handle(&self, event: Event);
+use super::event::EventHandler;
+
+pub struct Context {
+    pub window: GlWindow,
+    sdl: Sdl
 }
 
-pub struct Context<T: EventHandler> {
-    window: GlWindow,
-    sdl: Sdl,
-    handler: T
-}
 
-
-impl<T: EventHandler> Context<T> {
-    pub fn init(title: &str, h: i32, w: i32, handler: T) -> Result<Self, SdlError> {
+impl Context {
+    pub fn init(title: &str, h: i32, w: i32) -> Result<Self, SdlError> {
         let args = CreateWinArgs {
             title,
             width: w,
@@ -25,23 +23,30 @@ impl<T: EventHandler> Context<T> {
         sdl.set_gl_context_major_version(3)?;
         sdl.set_gl_profile(beryllium::video::GlProfile::Core)?;
 
+        // Завантужуємо тут всі функції OpenGL
+        unsafe {
+            load_gl_with(|gl_f| window.get_proc_address(gl_f.cast()));
+        }
+
+        // Повертаємо екземпляр Context
         Ok( Self {
             window,
-            sdl,
-            handler
+            sdl
         })
     }
 
-    pub fn event_polling(&self) {
-        'main_loop: loop {
-            while let Some((event, _timestamp)) = self.sdl.poll_events() {
-                match event {
-                    Event::Quit => break 'main_loop,
-                    _ => self.handler.handle(event)
-                }
-            }
-
-            self.window.swap_window();
+    /// Створюємо вектор, та сунемо всі евенти туда ;3
+    /// 
+    pub fn event_polling(&self) -> Vec<Event> {
+        let mut events = Vec::new();
+        while let Some((event, _timestamp)) = self.sdl.poll_events() {
+            events.push(event);
         }
+
+        events
+    }
+
+    pub fn swap(&self) {
+        self.window.swap_window();
     }
 }
