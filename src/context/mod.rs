@@ -1,8 +1,6 @@
 use beryllium::{Sdl, error::SdlError, events::Event, init::InitFlags, video::{CreateWinArgs, GlWindow}};
 use ogl33::load_gl_with;
 
-use super::event::EventHandler;
-
 pub struct Context {
     pub window: GlWindow,
     sdl: Sdl

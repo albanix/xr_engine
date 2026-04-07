@@ -1,6 +1,8 @@
 mod render;
 mod context;
 mod event;
+mod gl;
+mod shader;
 
 use beryllium::events::Event;
 
@@ -30,12 +32,18 @@ impl App {
     }
 
     pub fn render(&self) {
-        self.triangle.draw();
+        self.triangle.draw(
+            [
+                [-0.5, -0.5, 0.0],
+                [0.5, -0.5, 0.0],
+                [0.0, -0.5, 0.0]
+            ]
+        );
     }
 }
 fn main() {
     let context = Context::init("title", 400, 600).unwrap();
-    let mut app = App::new();
+    let app = App::new();
 
     loop {
         for event in context.event_polling() {
